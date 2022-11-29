@@ -33,3 +33,17 @@ FLUSH PRIVILEGES;
 ```
 ALTER TABLE rsvp ADD CONSTRAINT rsvp_email_u UNIQUE (email);
 ```
+
+## Railway cloud
+
+```
+railway login
+```
+
+```
+railway up
+```
+
+```
+mysql -u root -p -h containers-us-west-53.railway.app --port=6099
+```
