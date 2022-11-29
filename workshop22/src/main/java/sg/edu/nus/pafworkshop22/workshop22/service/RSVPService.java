@@ -22,7 +22,7 @@ public class RSVPService {
         return rsvpRepo.searchRSVPByName(name);
     }
 
-    public RSVP insertPurchaseOrder(final RSVP rsvp) {
+    public RSVP insertRSVP(final RSVP rsvp) {
         return rsvpRepo.insertRSVP(rsvp);
     }
 

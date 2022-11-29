@@ -86,7 +86,8 @@ public class RSVPRepository {
 
     public Integer getTotalRSVP() {
         // perform the query
-        List<RSVP> rsvps = jdbcTemplate.query(SQL_TOTAL_CNT_RSVP, new RSVPTotalCntMapper(), new Object[] {});
+        List<RSVP> rsvps = jdbcTemplate.query(SQL_TOTAL_CNT_RSVP, new RSVPTotalCntMapper(), 
+                new Object[] {});
 
         return rsvps.get(0).getTotalCnt();
     }

@@ -23,7 +23,7 @@ FLUSH PRIVILEGES;
 	"name": "Kenneth",
 	"email": "k@k.com",
 	"phone": "3345677",
-	"confirmation_date": "2018-12-10T13:49:51.141Z"
-	"comments": "hi hi"
+	"confirmation_date": "2018-12-10T13:49:51.141Z",
+	"comments": "hi hi",
 }
 ```

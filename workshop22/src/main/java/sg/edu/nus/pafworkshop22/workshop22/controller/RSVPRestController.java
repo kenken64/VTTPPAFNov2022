@@ -39,6 +39,12 @@ public class RSVPRestController {
             arrBuilder.add(c.toJSON());
         JsonArray result = arrBuilder.build();
         System.out.println("" + result.toString());
+        if (rsvps.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body("{'error_code': " + HttpStatus.NOT_FOUND + "'}");
+        }
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -78,7 +84,7 @@ public class RSVPRestController {
             return ResponseEntity.badRequest().body(resp.toString());
         }
 
-        rsvpResult = rsvpSvc.insertPurchaseOrder(rsvp);
+        rsvpResult = rsvpSvc.insertRSVP(rsvp);
         resp = Json.createObjectBuilder()
                 .add("rsvpId", rsvpResult.getId())
                 .build();
