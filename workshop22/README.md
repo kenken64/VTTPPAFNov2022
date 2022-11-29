@@ -27,3 +27,9 @@ FLUSH PRIVILEGES;
 	"comments": "hi hi",
 }
 ```
+
+## Apply unique contraint on email column
+
+```
+ALTER TABLE rsvp ADD CONSTRAINT rsvp_email_u UNIQUE (email);
+```
