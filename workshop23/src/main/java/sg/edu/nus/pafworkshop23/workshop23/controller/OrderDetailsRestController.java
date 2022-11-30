@@ -24,7 +24,7 @@ public class OrderDetailsRestController {
     private OrderDetailsService odSvc;
 
     @GetMapping(path = "{orderId}")
-    public ResponseEntity<String> getAllCustomer(@PathVariable Integer orderId) {
+    public ResponseEntity<String> getOrderDetailsWithDiscountedPrice(@PathVariable Integer orderId) {
         OrderDetails ord = odSvc.getDiscountedOrderDetails(orderId);
         return ResponseEntity
                 .status(HttpStatus.OK)
