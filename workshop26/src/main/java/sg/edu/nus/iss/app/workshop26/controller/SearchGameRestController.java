@@ -18,6 +18,7 @@ import jakarta.json.JsonArray;
 import jakarta.json.JsonArrayBuilder;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonObjectBuilder;
+import sg.edu.nus.iss.app.workshop26.models.Comment;
 import sg.edu.nus.iss.app.workshop26.models.Game;
 import sg.edu.nus.iss.app.workshop26.models.Games;
 import sg.edu.nus.iss.app.workshop26.services.SearchBGGService;
@@ -76,6 +77,23 @@ public class SearchGameRestController {
         objBuilder.add("game", gameDetails.toJSON());
         result = objBuilder.build();
 
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(result.toString());
+    }
+
+    @GetMapping(path = "/comment")
+    public ResponseEntity<String> searchComment(
+            @RequestParam String q, @RequestParam Float score) {
+
+        System.out.printf("q=%s, score=%f\n", q, score);
+        List<Comment> results = bggSvc.searchComment(q, score, 20, 0);
+        JsonArray result = null;
+        JsonArrayBuilder arrBuilder = Json.createArrayBuilder();
+        for (Comment g : results)
+            arrBuilder.add(g.toJSON());
+        result = arrBuilder.build();
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON)

@@ -2,6 +2,9 @@ package sg.edu.nus.iss.app.workshop26.models;
 
 import org.bson.Document;
 
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+
 public class Comment {
     private String user;
     private String text;
@@ -60,6 +63,15 @@ public class Comment {
         c.setRating(d.getInteger("rating"));
         c.setScore(d.getDouble("score").floatValue());
         return c;
+    }
+
+    public JsonObject toJSON() {
+        return Json.createObjectBuilder()
+                .add("user", getUser())
+                .add("c_text", getText())
+                .add("rating", getRating())
+                .add("score", getScore())
+                .build();
     }
 
 }
