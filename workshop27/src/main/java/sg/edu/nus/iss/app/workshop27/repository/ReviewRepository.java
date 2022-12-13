@@ -16,16 +16,23 @@ import sg.edu.nus.iss.app.workshop27.models.Review;
 @Repository
 public class ReviewRepository {
 
+    private static final String REVIEWS_COL = "reviews";
+
     @Autowired
     private MongoTemplate mongoTemplate;
 
     public Review insertReview(Review r) {
-        return mongoTemplate.insert(r, "reviews");
+        return mongoTemplate.insert(r, REVIEWS_COL);
+    }
+
+    public Review getReview(String _id) {
+        ObjectId docId = new ObjectId(_id);
+        return mongoTemplate.findById(docId, Review.class, REVIEWS_COL);
     }
 
     public Review updateEdits(String _id, EditedComment c) {
         ObjectId docId = new ObjectId(_id);
-        Review r = mongoTemplate.findById(docId, Review.class, "reviews");
+        Review r = mongoTemplate.findById(docId, Review.class, REVIEWS_COL);
         if (r != null) {
             EditedComment e = new EditedComment();
             e.setComment(c.getComment());
@@ -39,7 +46,7 @@ public class ReviewRepository {
                 r.setEdited(ll);
             }
 
-            mongoTemplate.save(r, "reviews");
+            mongoTemplate.save(r, REVIEWS_COL);
         }
         return r;
     }

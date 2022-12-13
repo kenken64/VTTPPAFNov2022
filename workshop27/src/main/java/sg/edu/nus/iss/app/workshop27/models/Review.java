@@ -9,6 +9,7 @@ import org.bson.Document;
 
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
+import jakarta.json.JsonObjectBuilder;
 
 public class Review {
     private String _id;
@@ -19,6 +20,8 @@ public class Review {
     private LocalDateTime posted;
     private String boardGame;
     private List<EditedComment> edited;
+    private Boolean isEdited;
+    private LocalDateTime timestamp;
 
     public Review() {
     }
@@ -32,6 +35,14 @@ public class Review {
         this.gameId = gameId;
         this.boardGame = boardGame;
         this.posted = LocalDateTime.now();
+    }
+
+    public Boolean getIsEdited() {
+        return isEdited;
+    }
+
+    public void setIsEdited(Boolean isEdited) {
+        this.isEdited = isEdited;
     }
 
     public String get_id() {
@@ -98,6 +109,14 @@ public class Review {
         this.boardGame = boardGame;
     }
 
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
+
     public static Review create(Document d) {
         Review g = new Review();
         g.set_id(d.getObjectId("_id").toString());
@@ -114,21 +133,28 @@ public class Review {
         return g;
     }
 
-    public JsonObject toJSON() {
+    public JsonObject toJSON(boolean switchProp) {
         List<JsonObject> js = this.getEdited()
                 .stream()
                 .map(c -> c.toJSON())
                 .toList();
-        return Json.createObjectBuilder()
-                .add("_id", this.get_id())
-                .add("user", this.getUser())
-                .add("rating", getRating())
-                .add("comment", getComment())
-                .add("gameId", getGameId())
-                .add("posted", getPosted().toString())
-                .add("boardGame", getBoardGame())
-                .add("edited", js.toString())
-                .build();
+        JsonObjectBuilder builder = Json.createObjectBuilder();
+
+        builder.add("_id", this.get_id());
+        builder.add("user", this.getUser());
+        builder.add("rating", getRating());
+        builder.add("comment", getComment());
+        builder.add("gameId", getGameId());
+        builder.add("posted", getPosted().toString());
+        builder.add("boardGame", getBoardGame());
+        if (switchProp) {
+            if (getIsEdited() != null)
+                builder.add("edited", getIsEdited());
+        } else {
+            builder.add("edited", js.toString());
+        }
+
+        return builder.build();
     }
 
 }

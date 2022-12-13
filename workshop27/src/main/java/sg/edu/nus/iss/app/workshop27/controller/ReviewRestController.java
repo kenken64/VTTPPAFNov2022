@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,7 +30,33 @@ public class ReviewRestController {
         JsonObject result = null;
         Review r = reviewSvc.updateEdits(_id, json);
         JsonObjectBuilder builder = Json.createObjectBuilder();
-        builder.add("review", r.toJSON());
+        builder.add("review", r.toJSON(false));
+        result = builder.build();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(result.toString());
+    }
+
+    @GetMapping("{reviewId}")
+    public ResponseEntity<String> getReviewById(@PathVariable String reviewId) {
+        JsonObject result = null;
+        Review r = reviewSvc.getReview(reviewId);
+        JsonObjectBuilder builder = Json.createObjectBuilder();
+        builder.add("review", r.toJSON(true));
+        result = builder.build();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(result.toString());
+    }
+
+    @GetMapping("{reviewId}/history")
+    public ResponseEntity<String> getReviewHistory(@PathVariable String reviewId) {
+        JsonObject result = null;
+        Review r = reviewSvc.getReview(reviewId);
+        JsonObjectBuilder builder = Json.createObjectBuilder();
+        builder.add("review", r.toJSON(false));
         result = builder.build();
         return ResponseEntity
                 .status(HttpStatus.OK)
