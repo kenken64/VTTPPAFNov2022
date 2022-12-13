@@ -20,12 +20,12 @@ public class ReviewRepository {
     private MongoTemplate mongoTemplate;
 
     public Review insertReview(Review r) {
-        return mongoTemplate.insert(r, "review");
+        return mongoTemplate.insert(r, "reviews");
     }
 
     public Review updateEdits(String _id, EditedComment c) {
         ObjectId docId = new ObjectId(_id);
-        Review r = mongoTemplate.findById(docId, Review.class, "review");
+        Review r = mongoTemplate.findById(docId, Review.class, "reviews");
         if (r != null) {
             EditedComment e = new EditedComment();
             e.setComment(c.getComment());
@@ -39,7 +39,7 @@ public class ReviewRepository {
                 r.setEdited(ll);
             }
 
-            mongoTemplate.save(r);
+            mongoTemplate.save(r, "reviews");
         }
         return r;
     }
