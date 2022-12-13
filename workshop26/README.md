@@ -51,3 +51,9 @@ db.game.find({"gid": 1})
 db.game.createIndex({ "name": "text", "url": "text" });
 db.game.find({ $text: { $search: "tic" } });
 ```
+
+10. Create Index for the Comment collection -  Text Query
+
+```
+ db.comment.createIndex({c_text: "text"})
+```

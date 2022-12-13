@@ -33,15 +33,21 @@ public class SearchBGGService {
     }
 
     public List<Comment> searchComment(String q, Float score, Integer limit, Integer offset) {
-        List<String> include = new LinkedList<>();
-        List<String> exclude = new LinkedList<>();
+        List<String> includes = new LinkedList<>();
+        List<String> excludes = new LinkedList<>();
 
-        for (String w : q.split(" "))
-            if (w.startsWith("-"))
-                exclude.add(w);
-            else
-                include.add(w);
+        for (String w : s.split(" ")) {
+            if (w.startsWith("-")) {
+                String[] exW = w.split("-");
+                excludes.add(exW[1]);
+            } else {
+                includes.add(w);
+            }
+        }
+        System.out.println(excludes);
+        System.out.println("--------------");
+        System.out.println(includes);
 
-        return commentRepo.search(include, exclude, limit, offset);
+        return commentRepo.search(includes, excludes, limit, offset);
     }
 }
