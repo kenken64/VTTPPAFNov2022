@@ -62,25 +62,26 @@ public class ReviewRepository {
     public Optional<Game> aggregateGame(String gid) {
         // $Match operation
         MatchOperation matchName = Aggregation.match(
-                Criteria.where("gid").is(gid));
+                Criteria.where("gid").is(Integer.parseInt(gid)));
         // $lookup
-        LookupOperation findComments = Aggregation.lookup("reviews", "gameId", "gid", "reviewsDocs");
+        LookupOperation findReviews = Aggregation.lookup("reviews", "gameId", "gid", "reviewsDocs");
 
         ProjectionOperation selectFields = Aggregation.project("_id", "gid", "name", "year", "ranking", "users_rated",
-                "url", "image", "reviews");
+                "url", "image", "game");
 
         Aggregation pipeline = Aggregation.newAggregation(
-                matchName, findComments, selectFields);
+                matchName, findReviews, selectFields);
 
         // Query the collection
-        AggregationResults<Document> results = mongoTemplate.aggregate(pipeline, "games", Document.class);
-
+        AggregationResults<Document> results = mongoTemplate.aggregate(pipeline, "game", Document.class);
+        System.out.println(results);
         if (!results.iterator().hasNext())
             return Optional.empty();
-
+        System.out.println("xxxx");
         // Get one result only
         Document doc = results.iterator().next();
         Game g = Game.create(doc);
+        System.out.println(g);
         return Optional.of(g);
     }
 }
