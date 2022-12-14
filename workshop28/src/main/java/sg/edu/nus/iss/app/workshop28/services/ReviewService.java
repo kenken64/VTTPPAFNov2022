@@ -41,6 +41,6 @@ public class ReviewService {
     }
 
     public Optional<Game> aggregateGame(String gid) {
-        return reviewRepo.aggregateGame(gid);
+        return reviewRepo.aggregrateGameReviews(gid);
     }
 }

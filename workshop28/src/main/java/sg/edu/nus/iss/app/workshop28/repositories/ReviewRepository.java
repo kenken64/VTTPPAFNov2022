@@ -9,6 +9,8 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.AddFieldsOperation;
+import org.springframework.data.mongodb.core.aggregation.AddFieldsOperation.AddFieldsOperationBuilder;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.aggregation.LookupOperation;
@@ -59,29 +61,37 @@ public class ReviewRepository {
         return r;
     }
 
-    public Optional<Game> aggregateGame(String gid) {
-        // $Match operation
-        MatchOperation matchName = Aggregation.match(
-                Criteria.where("gid").is(Integer.parseInt(gid)));
-        // $lookup
-        LookupOperation findReviews = Aggregation.lookup("reviews", "gameId", "gid", "reviewsDocs");
+    /**
+     * db.game.aggregate([ { $match: { gid: 3 } }, { $lookup: { from: "reviews",
+     * localField: "gameId", foreignField: "gid", as: "reviewsDocs" } }, { $project:
+     * { _id: 1, gid: 1, name: 1, year: 1, ranking: 1, users_rated: 1, url: 1,
+     * image: 1, reviews: "$reviewsDocs._id", timestamp: "$$NOW" } }]);
+     */
+    public Optional<Game> aggregrateGameReviews(String gameId) {
+        MatchOperation matchGameId = Aggregation.match(
+                Criteria.where("gid").is(Integer.parseInt(gameId)));
 
-        ProjectionOperation selectFields = Aggregation.project("_id", "gid", "name", "year", "ranking", "users_rated",
-                "url", "image", "game");
+        LookupOperation linkReviewsGame = Aggregation.lookup(REVIEWS_COL,
+                "gameId", "gid", "reviewsDocs");
 
-        Aggregation pipeline = Aggregation.newAggregation(
-                matchName, findReviews, selectFields);
+        ProjectionOperation projection = Aggregation
+                .project("_id", "gid", "name", "year", "ranking",
+                        "users_rated", "url", "image")
+                .and("reviewsDocs._id").as("reviews");
 
-        // Query the collection
-        AggregationResults<Document> results = mongoTemplate.aggregate(pipeline, "game", Document.class);
-        System.out.println(results);
+        AddFieldsOperationBuilder adFieldOpsBld = Aggregation.addFields();
+        adFieldOpsBld.addFieldWithValue("timestamp", LocalDateTime.now());
+        AddFieldsOperation newFieldOps = adFieldOpsBld.build();
+
+        Aggregation pipeline = Aggregation
+                .newAggregation(matchGameId, linkReviewsGame, projection, newFieldOps);
+        AggregationResults<Document> results = mongoTemplate
+                .aggregate(pipeline, "game", Document.class);
         if (!results.iterator().hasNext())
             return Optional.empty();
-        System.out.println("xxxx");
-        // Get one result only
+
         Document doc = results.iterator().next();
         Game g = Game.create(doc);
-        System.out.println(g);
         return Optional.of(g);
     }
 }
