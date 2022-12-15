@@ -24,3 +24,7 @@
 ```
 db.rsvp.aggregate([{ "$group" : { "_id" : "$foodType", "foodType" : { "$push" : "$foodType"}, "count" : { "$sum" : 1}}}, { "$sort" : { "count" : 1}}])
 ```
+
+```
+db.rsvp.aggregate([{ "$group" : { "_id" : "$foodType", "foodType" : { "$push" : "$foodType"}, "count" : { "$sum" : 1}}}, { "$sort" : { "count" : 1}}])
+```

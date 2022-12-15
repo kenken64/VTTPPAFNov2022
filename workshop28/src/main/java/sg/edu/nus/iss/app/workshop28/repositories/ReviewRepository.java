@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.core.aggregation.AddFieldsOperation;
 import org.springframework.data.mongodb.core.aggregation.AddFieldsOperation.AddFieldsOperationBuilder;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.LimitOperation;
 import org.springframework.data.mongodb.core.aggregation.LookupOperation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
@@ -63,7 +64,7 @@ public class ReviewRepository {
 
     /**
      * db.game.aggregate([ { $match: { gid: 3 } }, { $lookup: { from: "reviews",
-     * localField: "gameId", foreignField: "gid", as: "reviewsDocs" } }, { $project:
+     * localField: "gid", foreignField: "gameId", as: "reviewsDocs" } }, { $project:
      * { _id: 1, gid: 1, name: 1, year: 1, ranking: 1, users_rated: 1, url: 1,
      * image: 1, reviews: "$reviewsDocs._id", timestamp: "$$NOW" } }]);
      */
@@ -94,4 +95,37 @@ public class ReviewRepository {
         Game g = Game.create(doc);
         return Optional.of(g);
     }
+
+    public List<Game> aggregateGamesComment(Integer limit, String username, Integer ranking) {
+
+        Criteria andCriteria = new Criteria().andOperator(
+                Criteria.where("user").is(username),
+                Criteria.where("rating").is(ranking));
+
+        MatchOperation matchUsernameOp = Aggregation.match(andCriteria);
+
+        LookupOperation linkReviewsGame = Aggregation.lookup("game",
+                "gid", "gid", "gameComment");
+
+        ProjectionOperation projection = Aggregation
+                .project("_id", "c_id", "user", "rating",
+                        "c_text", "gid")
+                .and("gameComment.name").as("game_name");
+
+        LimitOperation limitRecords = Aggregation.limit(limit);
+
+        Aggregation pipeline = Aggregation
+                .newAggregation(matchUsernameOp,
+                        linkReviewsGame, projection, limitRecords);
+        AggregationResults<Document> results = mongoTemplate
+                .aggregate(pipeline, "comment", Document.class);
+
+        List<Game> arrgArr = new LinkedList<Game>();
+        while (results.iterator().hasNext()) {
+            Document doc = results.iterator().next();
+            arrgArr.add(Game.create(doc));
+        }
+        return null;
+    }
+
 }

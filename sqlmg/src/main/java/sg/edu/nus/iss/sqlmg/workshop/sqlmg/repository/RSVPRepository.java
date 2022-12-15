@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,6 +23,8 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
+
+import com.mongodb.client.MongoCursor;
 
 import sg.edu.nus.iss.sqlmg.workshop.sqlmg.models.AggrRSVP;
 import sg.edu.nus.iss.sqlmg.workshop.sqlmg.models.RSVP;
@@ -126,7 +129,7 @@ public class RSVPRepository {
                 .as("foodType")
                 .count().as("count");
         SortOperation sortByCount = Aggregation
-                .sort(Sort.by(Direction.ASC,
+                .sort(Sort.by(Direction.DESC,
                         "count"));
 
         Aggregation pipeline = Aggregation
@@ -136,8 +139,9 @@ public class RSVPRepository {
                         Document.class);
 
         List<AggrRSVP> arrgArr = new LinkedList<AggrRSVP>();
-        while (results.iterator().hasNext()) {
-            Document doc = results.iterator().next();
+        Iterator<Document> cursor = results.iterator();
+        while (cursor.hasNext()) {
+            Document doc = cursor.next();
             arrgArr.add(AggrRSVP.create(doc));
         }
         return arrgArr;
