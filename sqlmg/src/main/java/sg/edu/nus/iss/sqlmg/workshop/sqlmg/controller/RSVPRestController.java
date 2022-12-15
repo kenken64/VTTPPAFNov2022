@@ -18,6 +18,7 @@ import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonArrayBuilder;
 import jakarta.json.JsonObject;
+import sg.edu.nus.iss.sqlmg.workshop.sqlmg.models.AggrRSVP;
 import sg.edu.nus.iss.sqlmg.workshop.sqlmg.models.RSVP;
 import sg.edu.nus.iss.sqlmg.workshop.sqlmg.service.RSVPService;
 
@@ -119,6 +120,20 @@ public class RSVPRestController {
                 .status(HttpStatus.CREATED)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(resp.toString());
+    }
+
+    @GetMapping(path = "/count-by-ft")
+    public ResponseEntity<String> aggregateRSVPCountByFoodType() {
+        List<AggrRSVP> aggrRsvps = rsvpSvc.aggregateRSVPByFoodType();
+        // Build the result
+        JsonArrayBuilder arrBuilder = Json.createArrayBuilder();
+        for (AggrRSVP c : aggrRsvps)
+            arrBuilder.add(c.toJSON());
+        JsonArray result = arrBuilder.build();
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(result.toString());
     }
 
 }

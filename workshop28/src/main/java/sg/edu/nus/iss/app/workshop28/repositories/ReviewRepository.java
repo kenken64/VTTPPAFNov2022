@@ -72,7 +72,7 @@ public class ReviewRepository {
                 Criteria.where("gid").is(Integer.parseInt(gameId)));
 
         LookupOperation linkReviewsGame = Aggregation.lookup(REVIEWS_COL,
-                "gameId", "gid", "reviewsDocs");
+                "gid", "gameId", "reviewsDocs");
 
         ProjectionOperation projection = Aggregation
                 .project("_id", "gid", "name", "year", "ranking",

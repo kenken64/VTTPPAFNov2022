@@ -7,14 +7,23 @@ import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.GroupOperation;
+import org.springframework.data.mongodb.core.aggregation.SortOperation;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 
+import sg.edu.nus.iss.sqlmg.workshop.sqlmg.models.AggrRSVP;
 import sg.edu.nus.iss.sqlmg.workshop.sqlmg.models.RSVP;
 import sg.edu.nus.iss.sqlmg.workshop.sqlmg.models.RSVPTotalCntMapper;
 
@@ -25,6 +34,9 @@ public class RSVPRepository {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     public List<RSVP> getAllRSVP(String q) {
         // prevent inheritance
@@ -72,7 +84,10 @@ public class RSVPRepository {
             }, keyholder);
             BigInteger primaryKeyVal = (BigInteger) keyholder.getKey();
             rsvp.setId(primaryKeyVal.intValue());
-
+            if (rsvp.getId() > 0) {
+                rsvp.setConfirmationDate(null);
+                mongoTemplate.insert(rsvp, "rsvp");
+            }
         } catch (DataIntegrityViolationException e) {
             RSVP existingRSVP = searchRSVPByEmail(rsvp.getEmail());
             existingRSVP.setComments(rsvp.getComments());
@@ -101,5 +116,30 @@ public class RSVPRepository {
                 new Object[] {});
 
         return rsvps.get(0).getTotalCnt();
+    }
+
+    public List<AggrRSVP> aggregateRSVPByFoodType() {
+        System.out.println("aggregateRSVPByFoodType");
+        GroupOperation grpByFoodType = Aggregation
+                .group("foodType")
+                .push("foodType")
+                .as("foodType")
+                .count().as("count");
+        SortOperation sortByCount = Aggregation
+                .sort(Sort.by(Direction.ASC,
+                        "count"));
+
+        Aggregation pipeline = Aggregation
+                .newAggregation(grpByFoodType, sortByCount);
+        AggregationResults<Document> results = mongoTemplate
+                .aggregate(pipeline, "rsvp",
+                        Document.class);
+
+        List<AggrRSVP> arrgArr = new LinkedList<AggrRSVP>();
+        while (results.iterator().hasNext()) {
+            Document doc = results.iterator().next();
+            arrgArr.add(AggrRSVP.create(doc));
+        }
+        return arrgArr;
     }
 }
