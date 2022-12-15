@@ -6,7 +6,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.resource.ResourceTransformerSupport;
 
+import sg.edu.nus.iss.app.workshop28.models.Comment;
 import sg.edu.nus.iss.app.workshop28.models.EditedComment;
 import sg.edu.nus.iss.app.workshop28.models.Game;
 import sg.edu.nus.iss.app.workshop28.models.Review;
@@ -42,5 +44,9 @@ public class ReviewService {
 
     public Optional<Game> aggregateGame(String gid) {
         return reviewRepo.aggregrateGameReviews(gid);
+    }
+
+    public List<Comment> aggregateGamesComment(Integer limit, String username, Integer rating) {
+        return reviewRepo.aggregateGamesComment(limit, username, rating);
     }
 }

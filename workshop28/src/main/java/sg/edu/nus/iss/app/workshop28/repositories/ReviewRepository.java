@@ -20,6 +20,7 @@ import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Repository;
 
+import sg.edu.nus.iss.app.workshop28.models.Comment;
 import sg.edu.nus.iss.app.workshop28.models.EditedComment;
 import sg.edu.nus.iss.app.workshop28.models.Game;
 import sg.edu.nus.iss.app.workshop28.models.Review;
@@ -96,11 +97,17 @@ public class ReviewRepository {
         return Optional.of(g);
     }
 
-    public List<Game> aggregateGamesComment(Integer limit, String username, Integer ranking) {
-
-        Criteria andCriteria = new Criteria().andOperator(
-                Criteria.where("user").is(username),
-                Criteria.where("rating").is(ranking));
+    public List<Comment> aggregateGamesComment(Integer limit, String username, Integer rating) {
+        Criteria andCriteria = null;
+        if (rating > 5) {
+            andCriteria = new Criteria().andOperator(
+                    Criteria.where("user").is(username),
+                    Criteria.where("rating").gt(rating));
+        } else {
+            andCriteria = new Criteria().andOperator(
+                    Criteria.where("user").is(username),
+                    Criteria.where("rating").lt(rating));
+        }
 
         MatchOperation matchUsernameOp = Aggregation.match(andCriteria);
 
@@ -116,16 +123,11 @@ public class ReviewRepository {
 
         Aggregation pipeline = Aggregation
                 .newAggregation(matchUsernameOp,
-                        linkReviewsGame, projection, limitRecords);
-        AggregationResults<Document> results = mongoTemplate
-                .aggregate(pipeline, "comment", Document.class);
+                        linkReviewsGame, limitRecords, projection);
+        AggregationResults<Comment> results = mongoTemplate
+                .aggregate(pipeline, "comment", Comment.class);
 
-        List<Game> arrgArr = new LinkedList<Game>();
-        while (results.iterator().hasNext()) {
-            Document doc = results.iterator().next();
-            arrgArr.add(Game.create(doc));
-        }
-        return null;
+        return (List<Comment>) results.getMappedResults();
     }
 
 }
